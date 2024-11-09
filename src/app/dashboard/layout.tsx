@@ -1,5 +1,5 @@
 "use client";
-import { signOut } from "next-auth/react";
+import { SessionProvider, signOut } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
 
@@ -21,10 +21,11 @@ export default function layout({ children }: { children: React.ReactNode }) {
           <div>
             {[
               { id: 1, label: "Dashboard", link: "" },
-              { id: 2, label: "Billing", link: "billing" },
-              { id: 3, label: "Recycle", link: "recycle" },
-              { id: 4, label: "Top up", link: "topup" },
-              { id: 5, label: "Meeting", link: "meeting" },
+              { id: 2, label: "Orders", link: "orders" },
+              { id: 3, label: "Billing", link: "billing" },
+              { id: 4, label: "Recycle", link: "recycle" },
+              { id: 5, label: "Top up", link: "topup" },
+              { id: 6, label: "Meeting", link: "meeting" },
             ].map((button) => (
               <div key={button.id}>
                 <Link
@@ -41,7 +42,9 @@ export default function layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-      {children}
+      <div className="w-[100%] px-10 pt-10">
+        <SessionProvider>{children}</SessionProvider>
+      </div>
     </div>
   );
 }

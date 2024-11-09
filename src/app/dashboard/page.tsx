@@ -1,7 +1,7 @@
 "use client";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { signOut, useSession } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import user from "../../../public/image.png";
 import {
@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/chart";
 import { ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import Image from "next/image";
+import { supabase } from "../comp/supabase";
 
-//$⛟♻⌛
-export default function page() {
+export default function DashboardPage() {
   const chartData = [
     { month: "January", desktop: 186, mobile: 80 },
     { month: "February", desktop: 305, mobile: 200 },
@@ -35,8 +35,41 @@ export default function page() {
     },
   } satisfies ChartConfig;
 
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      if (status === "authenticated" && session) {
+        console.log("User email:", session.user?.email);
+        console.log();
+      } else if (status === "loading") {
+        // Loading state, nothing to do
+      } else {
+        // Redirect to login page if the user is not authenticated
+        router.push("/login");
+      }
+    };
+
+    checkSession();
+  }, [session, status, router]);
+
+  // Fetch data from supabase
+  async function refresh() {
+    try {
+      const res = await supabase.from("clienti").select("*");
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
   return (
-    <div className="w-[100%] p-10 flex flex-col gap-10">
+    <div className="flex flex-col gap-10">
       <div className="flex justify-between w-[100%] gap-0">
         {[
           {
@@ -44,7 +77,6 @@ export default function page() {
             label: "Total Credit",
             emoji: "$",
             color: "green",
-            link: "",
             number: "$3,211",
             under: "Based on 100 Charges",
           },
@@ -53,7 +85,6 @@ export default function page() {
             label: "Total Orders",
             emoji: "⛟",
             color: "blue",
-            link: "billing",
             number: "+8",
             under: "Total Orders on Slam",
           },
@@ -62,7 +93,6 @@ export default function page() {
             label: "Total Recycled",
             emoji: "♺",
             color: "black",
-            link: "recycle",
             number: "4",
             under: "Total Recycled on Slam",
           },
@@ -71,7 +101,6 @@ export default function page() {
             label: "Total Print Time",
             emoji: "⏱",
             color: "red",
-            link: "topup",
             number: "5",
             under: "Total Printed on Slam",
           },

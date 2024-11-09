@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import NextAuth from "next-auth";
+import NextAuth, { Profile } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions, User, getServerSession } from "next-auth";
 import { supabase } from "@/app/comp/supabase";
@@ -12,7 +12,7 @@ const authConfig: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, profile }: any) {
+    async signIn({ user, profile }: { user: User; profile?: Profile }) {
       if (!user.email) return false;
 
       try {
